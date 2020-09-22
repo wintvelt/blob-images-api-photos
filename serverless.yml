@@ -1,5 +1,5 @@
 # NOTE: update this with your service name
-service: blob-images-api-invites
+service: blob-images-api-photos
 
 # Create an optimized package for our functions 
 package:
