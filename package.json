@@ -1,0 +1,31 @@
+{
+  "name": "blob-images-api-invites",
+  "version": "2.2.0",
+  "description": "A Node.js starter for Serverless Framework with ES6 and TypeScript support",
+  "main": "handler.js",
+  "scripts": {
+    "test": "serverless-bundle test"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!blob-common)/",
+      "\\.pnp\\.[^\\/]+$"
+    ]
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnomalyInnovations/serverless-nodejs-starter.git"
+  },
+  "devDependencies": {
+    "serverless-bundle": "2.0.0",
+    "serverless-domain-manager": "^4.2.3",
+    "serverless-dotenv-plugin": "^2.4.2",
+    "serverless-offline": "^5.12.1"
+  },
+  "dependencies": {
+    "blob-common": "^1.1.1",
+    "serverless": "^2.1.1"
+  }
+}
