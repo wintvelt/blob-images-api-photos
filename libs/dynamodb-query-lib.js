@@ -2,7 +2,6 @@ import { dynamoDb } from 'blob-common/core/db';
 
 export const listPhotosByDate = async (userId) => {
     const params = {
-        TableName: process.env.photoTable,
         IndexName: process.env.dateIndex,
         KeyConditionExpression: "#pk = :pk",
         ExpressionAttributeNames: {
@@ -20,7 +19,6 @@ export const listPhotosByDate = async (userId) => {
 
 export const listPhotoRatings = async (photoId) => {
     const params = {
-        TableName: process.env.photoTable,
         KeyConditionExpression: "#pk = :pid",
         ExpressionAttributeNames: {
             '#pk': 'PK',

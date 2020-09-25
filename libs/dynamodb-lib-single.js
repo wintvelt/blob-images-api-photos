@@ -4,7 +4,6 @@ import { getMemberships } from './dynamodb-lib-memberships';
 
 const getMember = async (userId, groupId) => {
     const memberParams = {
-        TableName: process.env.photoTable,
         Key: {
             PK: 'UM' + userId,
             SK: groupId
@@ -24,7 +23,6 @@ export const checkUser = async (userId, groupId) => {
 
 export const getPhotoByUser = async (photoId, userId) => {
     const params = {
-        TableName: process.env.photoTable,
         Key: {
             PK: 'PO' + photoId,
             SK: userId,

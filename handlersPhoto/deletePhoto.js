@@ -8,7 +8,6 @@ import { listPhotoPublications } from "../libs/dynamodb-lib-photo";
 
 const groupUpdate = (photoUrl) => (group) => {
     return dynamoDb.update({
-        TableName: process.env.photoTable,
         Key: {
             PK: 'GBbase',
             SK: group.SK
@@ -26,7 +25,6 @@ const groupUpdate = (photoUrl) => (group) => {
 };
 const albumUpdate = (photoUrl) => (album) => {
     return dynamoDb.update({
-        TableName: process.env.photoTable,
         Key: {
             PK: album.PK,
             SK: album.SK
@@ -44,7 +42,6 @@ const albumUpdate = (photoUrl) => (album) => {
 };
 const albumPhotoUpdate = (photoId) => (album) => {
     return dynamoDb.delete({
-        TableName: process.env.photoTable,
         Key: {
             PK: `GP${album.group.id}#${album.SK}`,
             SK: photoId
@@ -52,7 +49,6 @@ const albumPhotoUpdate = (photoId) => (album) => {
     });
 };
 const userUpdate = (photoUrl) => (userId) => ({
-    TableName: process.env.photoTable,
     Key: {
         PK: 'UBbase',
         SK: userId
@@ -69,7 +65,6 @@ const userUpdate = (photoUrl) => (userId) => ({
 
 const ratingDelete = (rating) => {
     return dynamoDb.delete({
-        TableName: process.env.photoTable,
         Key: {
             PK: rating.PK,
             SK: rating.SK
@@ -96,7 +91,6 @@ const deleteFromSeenPics = async (photoId, userId) => {
                 const newSeenPics = oldSeenPics.filter(pic => (pic.albumPhoto !== picKey));
                 if (oldSeenPics.length > newSeenPics.length) {
                     const delPhotoUpdate = dynamoDb.update({
-                        TableName: process.env.photoTable,
                         Key: {
                             PK: member.PK,
                             SK: member.SK
@@ -118,7 +112,6 @@ export const main = handler(async (event, context) => {
     const userId = 'U' + event.requestContext.identity.cognitoIdentityId;
 
     const photoParams = {
-        TableName: process.env.photoTable,
         Key: {
             PK: 'PO' + event.pathParameters.id,
             SK: userId,
@@ -135,7 +128,6 @@ export const main = handler(async (event, context) => {
 
     const groups = await getMembershipsAndInvites(userId);
     const groupAlbums = await Promise.all(groups.map(group => dynamoDb.query({
-        TableName: process.env.photoTable,
         KeyConditionExpression: "#PK = :group",
         ExpressionAttributeNames: {
             '#PK': 'PK',

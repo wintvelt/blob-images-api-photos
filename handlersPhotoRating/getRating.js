@@ -16,7 +16,6 @@ export const main = handler(async (event, context) => {
 
     // get rating (may not exist)
     const ratingParams = {
-        TableName: process.env.photoTable,
         Key: userRatingKey
     };
     const ratingResult = await dynamoDb.get(ratingParams);

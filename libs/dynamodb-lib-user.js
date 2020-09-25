@@ -2,7 +2,6 @@ import { dynamoDb } from 'blob-common/core/db';
 
 export const getUser = async (userId) => {
     const params = {
-        TableName: process.env.photoTable,
         Key: {
             PK: 'USER',
             SK: userId,
@@ -18,7 +17,6 @@ export const getUser = async (userId) => {
 
 export const getUserByCognitoId = async (cognitoId) => {
     const params = {
-        TableName: process.env.photoTable,
         IndexName: process.env.cognitoIndex,
         KeyConditionExpression: '#c = :c',
         ExpressionAttributeNames: { '#c': 'cognitoId' },
