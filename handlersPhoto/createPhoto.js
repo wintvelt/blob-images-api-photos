@@ -12,7 +12,6 @@ import { getMemberRole } from "../libs/dynamodb-lib-single";
 export const main = handler(async (event, context) => {
     const eventList = event.Records || [];
     console.log(eventList.map(item => item.s3?.object));
-    console.log(process.env.photoBucket, process.env.devBucket);
     const keyList = eventList.map(item => decodeURIComponent(item.s3.object.key));
     const keyListLength = keyList.length;
 
@@ -20,11 +19,13 @@ export const main = handler(async (event, context) => {
     // create sets per user
     for (let i = 0; i < keyListLength; i++) {
         const key = keyList[i];
+        // fixedKey - because AWS replaces all spaces with '+'
+        const fixedKey = key.replace(/\+/g,' ');
         const cognitoId = key.split('/')[1];
         const userKeyList = keyListByUser[cognitoId];
         keyListByUser[cognitoId] = (userKeyList) ?
-            [...userKeyList, key]
-            : [key];
+            [...userKeyList, fixedKey]
+            : [fixedKey];
     }
     // update per user
     const userList = Object.keys(keyListByUser);
