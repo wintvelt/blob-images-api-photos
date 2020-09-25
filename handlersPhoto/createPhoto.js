@@ -19,13 +19,11 @@ export const main = handler(async (event, context) => {
     // create sets per user
     for (let i = 0; i < keyListLength; i++) {
         const key = keyList[i];
-        // fixedKey - because AWS replaces all spaces with '+'
-        const fixedKey = key.replace(/\+/g,' ');
         const cognitoId = key.split('/')[1];
         const userKeyList = keyListByUser[cognitoId];
         keyListByUser[cognitoId] = (userKeyList) ?
-            [...userKeyList, fixedKey]
-            : [fixedKey];
+            [...userKeyList, key]
+            : [key];
     }
     // update per user
     const userList = Object.keys(keyListByUser);
@@ -41,20 +39,20 @@ export const main = handler(async (event, context) => {
             let createPromises = [];
             for (let j = 0; j < userKeyListLength; j++) {
                 const key = userKeyList[j];
-
-                // add photo to user photos
-                const photoId = newPhotoId();
-                const photoItem = dbItem({
-                    PK: 'PO' + photoId,
-                    SK: user.SK,
-                    url: key,
-                    owner: user.SK,
-                });
-                createPromises.push(dbCreateItem(photoItem));
-
+                // if file cannot be found (incl when filename contains spaces) then no addition to db
                 const metadata = await s3.getMetadata({ Key: key });
                 const customMeta = metadata.Metadata;
                 if (customMeta) {
+                    // add photo to user photos
+                    const photoId = newPhotoId();
+                    const photoItem = dbItem({
+                        PK: 'PO' + photoId,
+                        SK: user.SK,
+                        url: key,
+                        owner: user.SK,
+                    });
+                    createPromises.push(dbCreateItem(photoItem));
+
                     const cleanPhoto = cleanRecord(photoItem);
                     const { action, groupid, albumid } = customMeta;
                     switch (action) {
