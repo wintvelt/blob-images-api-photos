@@ -50,7 +50,8 @@ provider:
       Resource: "arn:aws:ses:eu-central-1:*:*"
     - Effect: Allow
       Action:
-        - s3:getObject
+        - s3:GetObject
+        - s3:DeleteObject
       Resource: "arn:aws:s3:::*"
 
 functions:

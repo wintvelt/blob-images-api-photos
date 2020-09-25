@@ -25,7 +25,7 @@
     "serverless-offline": "^5.12.1"
   },
   "dependencies": {
-    "blob-common": "^1.2.4",
+    "blob-common": "^1.2.5",
     "serverless": "^2.1.1"
   }
 }
