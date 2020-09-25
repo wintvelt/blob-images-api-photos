@@ -11,6 +11,7 @@ import { getMemberRole } from "../libs/dynamodb-lib-single";
 
 export const main = handler(async (event, context) => {
     const eventList = event.Records || [];
+    console.log(eventList.map(item => item.s3?.object));
     const keyList = eventList.map(item => decodeURIComponent(item.s3.object.key));
     const keyListLength = keyList.length;
 
@@ -24,6 +25,7 @@ export const main = handler(async (event, context) => {
             [...userKeyList, key]
             : [key];
     }
+    console.log(keyListByUser);
     // update per user
     const userList = Object.keys(keyListByUser);
     const userListLength = userList.length;

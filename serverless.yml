@@ -21,12 +21,12 @@ provider:
 
   environment:
     photoTable: ${file(./serverlessDomainConfig.js):photoTable.${self:provider.stage}}
+    photoBucket: ${file(./serverlessDomainConfig.js):photoBucket.${self:provider.stage}}
     coverIndex: cover-idx
     photoIndex: SK-PK-idx
     emailIndex: email-idx
     cognitoIndex: cog-idx
     dateIndex: date-idx
-    photoBucket: blob-images
 
   iamRoleStatements:
     - Effect: Allow
@@ -58,7 +58,7 @@ functions:
     handler: handlersPhoto/createPhoto.main
     events:
       - s3:
-          bucket: blob-images
+          bucket: ${file(./serverlessDomainConfig.js):photoBucket.${self:provider.stage}}
           event: s3:ObjectCreated:*
           rules:
             - prefix: protected/
