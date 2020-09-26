@@ -1,4 +1,5 @@
 import { dynamoDb } from 'blob-common/core/db';
+import { cleanRecord } from 'blob-common/core/dbClean';
 import { listPhotoPublications } from './dynamodb-lib-photo';
 import { getMemberships } from './dynamodb-lib-memberships';
 
