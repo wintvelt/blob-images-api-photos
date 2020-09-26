@@ -49,7 +49,7 @@ export const main = handler(async (event, context) => {
                         PK: 'PO' + photoId,
                         SK: user.SK,
                         url: key,
-                        owner: user.SK,
+                        user: cleanRecord(user),
                     });
                     createPromises.push(dbCreateItem(photoItem));
 

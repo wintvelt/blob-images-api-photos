@@ -7,6 +7,7 @@ export const main = handler(async (event, context) => {
     const photoId = event.pathParameters.id;
     // get photo
     const photo = await getPhotoByUser(photoId, userId);
+    if (!photo) throw new Error('photo not found');
 
     return cleanRecord(photo);
 });
