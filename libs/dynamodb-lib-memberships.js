@@ -19,6 +19,11 @@ export const getMembershipsAndInvites = async (userId) => {
     return items.filter(item => item.status !== 'invite' || expireDate(item.createdAt) >= today);
 };
 
+export const getMemberships = async (userId) => {
+    const items = await getMembershipsAndInvites(userId);
+    return items.filter(item => item.status !== 'invite');
+};
+
 const getMembersAndInvites = async (groupId) => {
     const params = {
         IndexName: process.env.photoIndex,
