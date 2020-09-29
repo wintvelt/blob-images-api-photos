@@ -1,3 +1,4 @@
+// NB: photoIds only
 import { handler, getUserFromEvent } from "blob-common/core/handler";
 import { listPhotosByDate } from "../libs/dynamodb-query-lib";
 

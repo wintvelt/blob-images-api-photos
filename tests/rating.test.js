@@ -17,7 +17,6 @@ const testUserId2 = 'U123test-user2';
 
 test('Create a new rating', async () => {
     const event = eventContext({
-        userId: testUserId2,
         pathParameters: { id: testPhotoId },
         body: { ratingUpdate: 1 }
     });
