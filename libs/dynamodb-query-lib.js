@@ -8,7 +8,7 @@ export const listPhotosByDate = async (userId) => {
             '#pk': 'PK',
         },
         ExpressionAttributeValues: {
-            ":PK": 'PO' + userId,
+            ":pk": 'PO' + userId,
         },
     };
 
