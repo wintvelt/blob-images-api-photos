@@ -5,7 +5,7 @@ export const listPhotosByDate = async (userId) => {
         IndexName: process.env.dateIndex,
         KeyConditionExpression: "#pk = :pk",
         ExpressionAttributeNames: {
-            '#pk': 'PK',
+            '#pk': 'datePK',
         },
         ExpressionAttributeValues: {
             ":pk": 'PO' + userId,
