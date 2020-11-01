@@ -65,7 +65,7 @@ functions:
             - prefix: protected/
           existing: true
   getPhoto:
-    handler: handlersPhoto/listPhotos.main
+    handler: handlersPhoto/getPhoto.main
     events:
       - http:
           path: /{id}
