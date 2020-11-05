@@ -29,7 +29,7 @@ export const getPhotoByUser = async (photoId, userId) => {
             SK: userId,
         }
     };
-    console.log({ table: process.env.photoTable, Key });
+    console.log({ table: process.env.photoTable, params });
     const result = await dynamoDb.get(params);
     if (!result.Item) return undefined;
 
