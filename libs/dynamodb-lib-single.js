@@ -29,7 +29,7 @@ export const getPhotoByUser = async (photoId, userId) => {
             SK: userId,
         }
     };
-
+    console.log({ table: process.env.photoTable, params });
     const result = await dynamoDb.get(params);
     if (!result.Item) return undefined;
 
@@ -41,16 +41,16 @@ const getGroupId = (key) => key.split('#')[0].slice(2);
 
 export const getPhotoById = async (photoId, userId) => {
     // returns photo if user has any access
-        const photo = await getPhotoByUser(photoId, userId);
-        if (photo) return photo;
+    const photo = await getPhotoByUser(photoId, userId);
+    if (photo) return photo;
 
-        // get all publications and return if user is member of any
-        const publications = await listPhotoPublications(photoId);
-        const memberships = await getMemberships(userId);
-        const groupsWithUser = memberships.map(mem => mem.SK);
-        const pubsWithMembership = publications.filter(pub => groupsWithUser.includes(getGroupId(pub.PK)));
-        if (pubsWithMembership.length === 0) return undefined;
-        return pubsWithMembership[0].photo;
+    // get all publications and return if user is member of any
+    const publications = await listPhotoPublications(photoId);
+    const memberships = await getMemberships(userId);
+    const groupsWithUser = memberships.map(mem => mem.SK);
+    const pubsWithMembership = publications.filter(pub => groupsWithUser.includes(getGroupId(pub.PK)));
+    if (pubsWithMembership.length === 0) return undefined;
+    return pubsWithMembership[0].photo;
 };
 
 // for new groups and new albums, photos may be provided by filename instead of id
