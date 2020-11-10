@@ -8,6 +8,7 @@ import { s3 } from "blob-common/core/s3";
 
 import { getUserByCognitoId } from "../libs/dynamodb-lib-user";
 import { getMemberRole } from "../libs/dynamodb-lib-single";
+import { getExifData } from "../libs/lib-geodata";
 
 export const main = handler(async (event, context) => {
     const eventList = event.Records || [];
@@ -40,16 +41,21 @@ export const main = handler(async (event, context) => {
             for (let j = 0; j < userKeyListLength; j++) {
                 const key = userKeyList[j];
                 // if file cannot be found (incl when filename contains spaces) then no addition to db
-                const metadata = await s3.getMetadata({ Key: key });
+                const [metadata, file] = await Promise.all([
+                    s3.getMetadata({ Key: key }),
+                    s3.get({ Key: key })
+                ]);
                 const customMeta = metadata.Metadata;
                 if (customMeta) {
-                    // add photo to user photos
+                    // add photo to user photos, only if there are metadata
                     const photoId = newPhotoId();
+                    const exifData = await getExifData(file);
                     const photoItem = dbItem({
                         PK: 'PO' + photoId,
                         SK: user.SK,
                         url: key,
                         user: cleanRecord(user),
+                        ...exifData,
                     });
                     createPromises.push(dbCreateItem(photoItem));
 
