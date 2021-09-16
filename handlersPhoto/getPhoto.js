@@ -1,6 +1,6 @@
 import { handler, getUserFromEvent } from "blob-common/core/handler";
 import { cleanRecord } from "blob-common/core/dbClean";
-import { getSignedUrlGet } from "blob-common/core/s3d";
+import { s3 } from "blob-common/core/s3";
 import { getPhotoById } from "../libs/dynamodb-lib-single";
 
 export const main = handler(async (event, context) => {
@@ -11,7 +11,7 @@ export const main = handler(async (event, context) => {
     if (!photo) throw new Error('photo not found');
 
     // add signed s3 url
-    const signedUrl = getSignedUrlGet({
+    const signedUrl = s3.getSignedUrlGet({
         Key: photo.url
     });
     photo.signedUrl = signedUrl;
