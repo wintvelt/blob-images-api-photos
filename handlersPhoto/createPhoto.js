@@ -6,7 +6,7 @@ import { dbItem, dbCreateItem } from 'blob-common/core/dbCreate';
 import { cleanRecord } from 'blob-common/core/dbClean';
 import { s3 } from "blob-common/core/s3";
 
-import { getUserByCognitoId } from "../libs/dynamodb-lib-user";
+import { getUser } from "../libs/dynamodb-lib-user";
 import { getMemberRole } from "../libs/dynamodb-lib-single";
 import { getExifData } from "../libs/lib-geodata";
 
@@ -20,9 +20,9 @@ export const main = handler(async (event, context) => {
     // create sets per user
     for (let i = 0; i < keyListLength; i++) {
         const key = keyList[i];
-        const cognitoId = key.split('/')[1];
-        const userKeyList = keyListByUser[cognitoId];
-        keyListByUser[cognitoId] = (userKeyList) ?
+        const userId = key.split('/')[1];
+        const userKeyList = keyListByUser[userId];
+        keyListByUser[userId] = (userKeyList) ?
             [...userKeyList, key]
             : [key];
     }
@@ -30,13 +30,12 @@ export const main = handler(async (event, context) => {
     const userList = Object.keys(keyListByUser);
     const userListLength = userList.length;
     for (let i = 0; i < userListLength; i++) {
-        const cognitoId = userList[i];
-        const userKeyList = keyListByUser[cognitoId];
-        const user = await getUserByCognitoId(cognitoId);
+        const userId = userList[i];
+        const userKeyList = keyListByUser[userId];
+        const user = await getUser(userId);
 
         if (user) {
             const userKeyListLength = userKeyList.length;
-            const userId = user.SK;
             let createPromises = [];
             for (let j = 0; j < userKeyListLength; j++) {
                 const key = userKeyList[j];
