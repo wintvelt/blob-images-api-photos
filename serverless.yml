@@ -1,5 +1,7 @@
 # NOTE: update this with your service name
 service: blob-images-api-photos
+useDotenv: true
+variablesResolutionMode: 20210326
 
 # Create an optimized package for our functions 
 package:
