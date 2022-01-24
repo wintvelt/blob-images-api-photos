@@ -20,7 +20,7 @@ export const main = handler(async (event, context) => {
     // create sets per user
     for (let i = 0; i < keyListLength; i++) {
         const key = keyList[i];
-        const userId = key.split('/')[1];
+        const userId = 'U' + key.split('/')[1];
         const userKeyList = keyListByUser[userId];
         keyListByUser[userId] = (userKeyList) ?
             [...userKeyList, key]
@@ -30,7 +30,7 @@ export const main = handler(async (event, context) => {
     const userList = Object.keys(keyListByUser);
     const userListLength = userList.length;
     for (let i = 0; i < userListLength; i++) {
-        const userId = 'U' + userList[i];
+        const userId = userList[i];
         const userKeyList = keyListByUser[userId];
         const user = await getUser(userId);
 
