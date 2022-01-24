@@ -30,7 +30,7 @@ export const main = handler(async (event, context) => {
     const userList = Object.keys(keyListByUser);
     const userListLength = userList.length;
     for (let i = 0; i < userListLength; i++) {
-        const userId = userList[i];
+        const userId = 'U' + userList[i];
         const userKeyList = keyListByUser[userId];
         const user = await getUser(userId);
 
