@@ -38,7 +38,7 @@ export const main = handler(async (event, context) => {
         const userKeyList = keyListByUser[userId];
         const userIsCognito = userId.includes('eu-central-1:');
         const user = (userIsCognito)?
-            await getUserByCognitoId(userId)
+            await getUserByCognitoId(userId.slice(1))
             : await getUser(userId);
 
         if (user) {
