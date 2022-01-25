@@ -20,7 +20,11 @@ export const main = handler(async (event, context) => {
     // create sets per user
     for (let i = 0; i < keyListLength; i++) {
         const key = keyList[i];
-        const userId = 'U' + key.split('/')[1];
+        const keySegments = key.split('/');
+        if (keySegments.length < 3) continue; // not the file we're looking for
+        const folder = keySegments[0];
+        if (!folder === 'protected' || !folder === 'private') continue; // only care for user items
+        const userId = 'U' + keySegments[1];
         const userKeyList = keyListByUser[userId];
         keyListByUser[userId] = (userKeyList) ?
             [...userKeyList, key]
