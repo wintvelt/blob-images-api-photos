@@ -51,7 +51,7 @@ export const main = handler(async (event, context) => {
                 const customMeta = metadata.Metadata;
                 if (customMeta && !customMeta.iscopy) {
                     // only if there are metadata, and this is not a migration
-                    // add photo to user photos, 
+                    // add photo to user photos,
                     const photoId = newPhotoId();
                     const exifData = await getExifData(file);
                     const photoItem = dbItem({
