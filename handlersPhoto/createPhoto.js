@@ -49,8 +49,9 @@ export const main = handler(async (event, context) => {
                     s3.get({ Key: key })
                 ]);
                 const customMeta = metadata.Metadata;
-                if (customMeta && !customMeta.iscopy) {
-                    // only if there are metadata, and this is not a migration
+                if (!customMeta || !customMeta.iscopy) {
+                    // if this is not a migration
+
                     // add photo to user photos,
                     const photoId = newPhotoId();
                     const exifData = await getExifData(file);
