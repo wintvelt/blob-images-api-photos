@@ -6,7 +6,7 @@ import { dbItem, dbCreateItem } from 'blob-common/core/dbCreate';
 import { cleanRecord } from 'blob-common/core/dbClean';
 import { s3 } from "blob-common/core/s3";
 
-import { getUser } from "../libs/dynamodb-lib-user";
+import { getUser, getUserByCognitoId } from "../libs/dynamodb-lib-user";
 import { getMemberRole } from "../libs/dynamodb-lib-single";
 import { getExifData } from "../libs/lib-geodata";
 
@@ -36,7 +36,10 @@ export const main = handler(async (event, context) => {
     for (let i = 0; i < userListLength; i++) {
         const userId = userList[i];
         const userKeyList = keyListByUser[userId];
-        const user = await getUser(userId);
+        const userIsCognito = userId.includes('eu-central-1:');
+        const user = (userIsCognito)?
+            await getUserByCognitoId(userId)
+            : await getUser(userId);
 
         if (user) {
             const userKeyListLength = userKeyList.length;
@@ -118,6 +121,8 @@ export const main = handler(async (event, context) => {
                         default:
                             break;
                     }
+                } else {
+                    console.log(`upload ${key} ignored`);
                 };
             };
             await Promise.all(createPromises);
