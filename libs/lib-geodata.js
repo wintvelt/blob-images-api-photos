@@ -1,6 +1,6 @@
 import { makeDateStr } from 'blob-common/core/date';
 import { create as exifCreate } from 'exif-parser';
-import fetch from 'node-fetch';
+import fetch, { AbortError } from 'node-fetch';
 
 const getValFromGeo = (obj, key) => (
   (obj.adminArea1Type === key) ? obj.adminArea1
@@ -11,38 +11,50 @@ const getValFromGeo = (obj, key) => (
             : obj.adminArea6
 );
 
-const fetchCountry = async (code, lang = 'nl') => {
-  const url = `https://restcountries.eu/rest/v2/alpha/${code}`;
-  // const url = `https://restcountries.eu/v3/alpha/${code}`;
-  console.log(`getting country from ${url}`);
-  const result = await fetch(url).then(res => res.json()).catch(e => {
-    console.log("failed to get country");
-    return { translations: { lang: 'NO COUNTRY' } };
-  });
-  console.log("got a result");
-  console.log(result);
-  return result.translations[lang];
+const fetchCountry = (countryCode, lang = 'nl') => {
+  // TODO: fetch gives unexpected behavior on timeout (!!)
+  const regionNames = new Intl.DisplayNames(
+    [lang], { type: 'region' }
+  );
+
+  return regionNames.of(countryCode);
 };
 
 const fetchGeoCode = async (lat, lon) => {
+  // TODO: fetch gives unexpected behavior on timeout (!!)
   const url = 'http://open.mapquestapi.com/geocoding/v1/reverse?key=' +
     process.env.MAPQUEST_KEY +
     `&location=${lat},${lon}` +
     '&includeRoadMetadata=true&includeNearestIntersection=true';
   console.log("getting location");
-  const result = await fetch(url).then(res => res.json())
-    .catch(e => {
-      console.log("failed to get location");
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 2000);
+
+  let result;
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    result = await response.json();
+  } catch (error) {
+    if (error instanceof AbortError) {
+      console.log("get location timed out");
       return [];
-    });
-  console.log("got location");
+    } else {
+      console.log("get location failed");
+    }
+  } finally {
+    clearTimeout(timeout);
+  }
+
   const found = result.results && result.results[0];
   const location = found && found.locations[0];
   const street = (location.street) ? location.street + ' - ' : '';
   const city = getValFromGeo(location, 'City');
   const countryCode = getValFromGeo(location, 'Country');
   console.log("getting country");
-  const country = await fetchCountry(countryCode);
+  const country = fetchCountry(countryCode);
   console.log("got country");
   return location ?
     street + (city ? city + ' - ' : '') + country
