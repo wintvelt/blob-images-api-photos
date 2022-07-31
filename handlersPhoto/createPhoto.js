@@ -76,6 +76,7 @@ export const main = handler(async (event, context) => {
                     // add photo to user photos,
                     const photoId = newPhotoId();
                     let exifData;
+                    console.log("getting exif data");
                     try {
                         exifData = await getExifData(file);
                         console.log("got exif data");
@@ -174,6 +175,7 @@ export const main = handler(async (event, context) => {
                     console.log(`upload ${key} ignored`);
                 };
             };
+            console.log(`going to do ${createPromises.length} promises to DB`);
             try {
                 await Promise.all(createPromises);
                 console.log(`completed ${createPromises.length} promises to DB`);
