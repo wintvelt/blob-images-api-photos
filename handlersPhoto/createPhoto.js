@@ -31,8 +31,8 @@ export const main = handler(async (event, context) => {
             [...userKeyList, key]
             : [key];
     }
-    console.log("made userKeyList")
-    console.log(userKeyList)
+    console.log("made keyListByUser");
+    console.log(keyListByUser);
     // update per user
     const userList = Object.keys(keyListByUser);
     const userListLength = userList.length;
@@ -47,8 +47,8 @@ export const main = handler(async (event, context) => {
                 : await getUser(userId);
             console.log("got user");
         } catch (error) {
-            console.log("getting user failed")
-            throw new Error(error)
+            console.log("getting user failed");
+            throw new Error(error);
         }
 
         if (user) {
@@ -64,10 +64,10 @@ export const main = handler(async (event, context) => {
                         s3.getMetadata({ Key: key }),
                         s3.get({ Key: key })
                     ]);
-                    console.log("got metadata")
+                    console.log("got metadata");
                 } catch (error) {
-                    console.log("getting metadata failed")
-                    throw new Error(error)
+                    console.log("getting metadata failed");
+                    throw new Error(error);
                 }
                 const customMeta = metadata.Metadata;
                 if (!customMeta || !customMeta.iscopy) {
@@ -78,10 +78,10 @@ export const main = handler(async (event, context) => {
                     let exifData;
                     try {
                         exifData = await getExifData(file);
-                        console.log("got exif data")
+                        console.log("got exif data");
                     } catch (error) {
-                        console.log("getting exif data failed")
-                        throw new Error(error)
+                        console.log("getting exif data failed");
+                        throw new Error(error);
                     }
                     const photoItem = dbItem({
                         PK: 'PO' + photoId,
@@ -100,12 +100,12 @@ export const main = handler(async (event, context) => {
                                 let memberRole;
                                 try {
                                     memberRole = await getMemberRole(userId, groupid);
-                                    console.log('got memberRole')    
+                                    console.log('got memberRole');
                                 } catch (error) {
-                                    console.log('get memberRole failed')
-                                    throw new Error(error)                                    
+                                    console.log('get memberRole failed');
+                                    throw new Error(error);
                                 }
-                                
+
                                 const isGroupAdmin = (memberRole && memberRole === 'admin');
                                 if (isGroupAdmin) {
                                     const AlbumPhotoItem = {
@@ -123,10 +123,10 @@ export const main = handler(async (event, context) => {
                                 let memberRole;
                                 try {
                                     memberRole = await getMemberRole(userId, groupid);
-                                    console.log('got memberRole')    
+                                    console.log('got memberRole');
                                 } catch (error) {
-                                    console.log('get memberRole failed')
-                                    throw new Error(error)                                    
+                                    console.log('get memberRole failed');
+                                    throw new Error(error);
                                 }
                                 const isGroupAdmin = (memberRole && memberRole === 'admin');
                                 if (isGroupAdmin) {
@@ -143,10 +143,10 @@ export const main = handler(async (event, context) => {
                                 let memberRole;
                                 try {
                                     memberRole = await getMemberRole(userId, groupid);
-                                    console.log('got memberRole')    
+                                    console.log('got memberRole');
                                 } catch (error) {
-                                    console.log('get memberRole failed')
-                                    throw new Error(error)                                    
+                                    console.log('get memberRole failed');
+                                    throw new Error(error);
                                 }
                                 const isGroupAdmin = (memberRole && memberRole === 'admin');
                                 if (isGroupAdmin) {
@@ -166,7 +166,7 @@ export const main = handler(async (event, context) => {
                             break;
                         }
                         default: {
-                            console.log(`ignored action "${action}"`)
+                            console.log(`ignored action "${action}"`);
                             break;
                         }
                     }
@@ -176,9 +176,9 @@ export const main = handler(async (event, context) => {
             };
             try {
                 await Promise.all(createPromises);
-                console.log(`completed ${createPromises.length} promises to DB`)
+                console.log(`completed ${createPromises.length} promises to DB`);
             } catch (error) {
-                throw new Error(error)                
+                throw new Error(error);
             }
         }
     }
