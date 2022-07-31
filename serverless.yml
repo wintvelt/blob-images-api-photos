@@ -15,7 +15,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs15.x
+  runtime: nodejs16.x
   stage: ${opt:stage, 'dev'}
   region: eu-central-1
   tags:
