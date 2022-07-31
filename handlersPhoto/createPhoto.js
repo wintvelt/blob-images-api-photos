@@ -12,6 +12,7 @@ import { getExifData } from "../libs/lib-geodata";
 
 export const main = handler(async (event, context) => {
     const eventList = event.Records || [];
+    console.log({ eventList });
     console.log(eventList.map(item => item.s3?.object));
     const keyList = eventList.map(item => decodeURIComponent(item.s3.object.key));
     const keyListLength = keyList.length;
@@ -30,6 +31,8 @@ export const main = handler(async (event, context) => {
             [...userKeyList, key]
             : [key];
     }
+    console.log("made userKeyList")
+    console.log(userKeyList)
     // update per user
     const userList = Object.keys(keyListByUser);
     const userListLength = userList.length;
@@ -37,9 +40,16 @@ export const main = handler(async (event, context) => {
         const userId = userList[i];
         const userKeyList = keyListByUser[userId];
         const userIsCognito = userId.includes('eu-central-1:');
-        const user = (userIsCognito)?
-            await getUserByCognitoId(userId.slice(1))
-            : await getUser(userId);
+        let user;
+        try {
+            user = (userIsCognito) ?
+                await getUserByCognitoId(userId.slice(1))
+                : await getUser(userId);
+            console.log("got user");
+        } catch (error) {
+            console.log("getting user failed")
+            throw new Error(error)
+        }
 
         if (user) {
             const userKeyListLength = userKeyList.length;
@@ -47,17 +57,32 @@ export const main = handler(async (event, context) => {
             for (let j = 0; j < userKeyListLength; j++) {
                 const key = userKeyList[j];
                 // if file cannot be found (incl when filename contains spaces) then no addition to db
-                const [metadata, file] = await Promise.all([
-                    s3.getMetadata({ Key: key }),
-                    s3.get({ Key: key })
-                ]);
+                let metadata;
+                let file;
+                try {
+                    [metadata, file] = await Promise.all([
+                        s3.getMetadata({ Key: key }),
+                        s3.get({ Key: key })
+                    ]);
+                    console.log("got metadata")
+                } catch (error) {
+                    console.log("getting metadata failed")
+                    throw new Error(error)
+                }
                 const customMeta = metadata.Metadata;
                 if (!customMeta || !customMeta.iscopy) {
                     // if this is not a migration
 
                     // add photo to user photos,
                     const photoId = newPhotoId();
-                    const exifData = await getExifData(file);
+                    let exifData;
+                    try {
+                        exifData = await getExifData(file);
+                        console.log("got exif data")
+                    } catch (error) {
+                        console.log("getting exif data failed")
+                        throw new Error(error)
+                    }
                     const photoItem = dbItem({
                         PK: 'PO' + photoId,
                         SK: user.SK,
@@ -72,7 +97,15 @@ export const main = handler(async (event, context) => {
                     switch (action) {
                         case 'albumphoto': {
                             if (groupid && albumid) {
-                                const memberRole = await getMemberRole(userId, groupid);
+                                let memberRole;
+                                try {
+                                    memberRole = await getMemberRole(userId, groupid);
+                                    console.log('got memberRole')    
+                                } catch (error) {
+                                    console.log('get memberRole failed')
+                                    throw new Error(error)                                    
+                                }
+                                
                                 const isGroupAdmin = (memberRole && memberRole === 'admin');
                                 if (isGroupAdmin) {
                                     const AlbumPhotoItem = {
@@ -87,7 +120,14 @@ export const main = handler(async (event, context) => {
                         }
                         case 'groupcover': {
                             if (groupid) {
-                                const memberRole = await getMemberRole(userId, groupid);
+                                let memberRole;
+                                try {
+                                    memberRole = await getMemberRole(userId, groupid);
+                                    console.log('got memberRole')    
+                                } catch (error) {
+                                    console.log('get memberRole failed')
+                                    throw new Error(error)                                    
+                                }
                                 const isGroupAdmin = (memberRole && memberRole === 'admin');
                                 if (isGroupAdmin) {
                                     createPromises.push(dbUpdateMulti('GBbase', groupid, {
@@ -100,7 +140,14 @@ export const main = handler(async (event, context) => {
                         }
                         case 'albumcover': {
                             if (groupid && albumid) {
-                                const memberRole = await getMemberRole(userId, groupid);
+                                let memberRole;
+                                try {
+                                    memberRole = await getMemberRole(userId, groupid);
+                                    console.log('got memberRole')    
+                                } catch (error) {
+                                    console.log('get memberRole failed')
+                                    throw new Error(error)                                    
+                                }
                                 const isGroupAdmin = (memberRole && memberRole === 'admin');
                                 if (isGroupAdmin) {
                                     createPromises.push(dbUpdateMulti(`GA${groupid}`, albumid, {
@@ -118,14 +165,21 @@ export const main = handler(async (event, context) => {
                             }));
                             break;
                         }
-                        default:
+                        default: {
+                            console.log(`ignored action "${action}"`)
                             break;
+                        }
                     }
                 } else {
                     console.log(`upload ${key} ignored`);
                 };
             };
-            await Promise.all(createPromises);
+            try {
+                await Promise.all(createPromises);
+                console.log(`completed ${createPromises.length} promises to DB`)
+            } catch (error) {
+                throw new Error(error)                
+            }
         }
     }
 
