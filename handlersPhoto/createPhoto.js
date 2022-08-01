@@ -12,8 +12,6 @@ import { getExifData } from "../libs/lib-geodata";
 
 export const main = handler(async (event, context) => {
     const eventList = event.Records || [];
-    console.log({ eventList });
-    console.log(eventList.map(item => item.s3?.object));
     const keyList = eventList.map(item => decodeURIComponent(item.s3.object.key));
     const keyListLength = keyList.length;
 
