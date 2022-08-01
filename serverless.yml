@@ -24,6 +24,7 @@ provider:
   environment:
     photoTable: ${file(./serverlessDomainConfig.js):photoTable.${self:provider.stage}}
     photoBucket: ${file(./serverlessDomainConfig.js):photoBucket.${self:provider.stage}}
+    createPhotoArn: ${file(./serverlessDomainConfig.js):createPhotoArn.${self:provider.stage}}
     coverIndex: cover-idx
     photoIndex: SK-PK-idx
     emailIndex: email-idx
@@ -54,9 +55,16 @@ provider:
       Action:
         - s3:GetObject
         - s3:DeleteObject
+        - s3:ListBucket
       Resource: "arn:aws:s3:::*"
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "arn:aws:lambda:*"
 
 functions:
+  fixPhotoDb:
+    handler: handlersPhoto/fixPhotoDb.main
   createPhoto:
     handler: handlersPhoto/createPhoto.main
     events:
