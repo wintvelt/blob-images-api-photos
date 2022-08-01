@@ -47,12 +47,15 @@ export const main = handler(async (event, context) => {
     const urlsNotInDB = urlsResult.map(res => (res.Count === 0));
 
     // Filter out any photo's already in DB
-    const keysToProcess = keysFromS3.filter((key,i) => (urlsNotInDB[i]));
+    const keysToProcess = keysFromS3.filter((key, i) => (urlsNotInDB[i]));
     console.log(`${keysToProcess.length} photos in S3 not yet in DB`);
+    console.log(keysToProcess);
 
     const promises = keysToProcess.map(key => lambda.invoke({ Records: [{ s3: { object: { key } } }] }));
 
     const result = await Promise.all(promises);
-    const okCount = result.filter(it => (it.StatusCode === 200)).length;
+    const responses = result.map(it => JSON.parse(it.Payload));
+    const okCount = responses.filter(it => (it.statusCode === 200)).length;
+    console.log(responses);
     return `${okCount} of ${promises.length} processed succesfully`;
 });
