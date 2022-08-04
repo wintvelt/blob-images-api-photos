@@ -30,9 +30,10 @@ export const main = handler(async (event, context) => {
         if (!folder === 'protected' || !folder === 'private') continue; // only care for user items
         const userId = 'U' + keySegments[1];
         const userKeyList = keyListByUser[userId];
+        const cleanKey = s3KeyFromUrl(key);
         keyListByUser[userId] = (userKeyList) ?
-            [...userKeyList, key]
-            : [key];
+            [...userKeyList, cleanKey]
+            : [cleanKey];
     }
     console.log("made keyListByUser");
     console.log(keyListByUser);
@@ -60,16 +61,20 @@ export const main = handler(async (event, context) => {
             for (let j = 0; j < userKeyListLength; j++) {
                 const key = userKeyList[j];
                 // if file cannot be found (incl when filename contains spaces) then no addition to db
-                let metadata;
                 let file;
+                let metadata;
                 try {
-                    [metadata, file] = await Promise.all([
-                        s3.getMetadata({ Key: s3KeyFromUrl(key) }), // event stream provides encoded keys
-                        s3.get({ Key: s3KeyFromUrl(key) })
-                    ]);
+                    file = await s3.get({ Key: key }); // event stream provides encoded keys
+                    console.log("got file");
+                } catch (error) {
+                    console.log("failed to get file");
+                    throw new Error(error);
+                };
+                try {
+                    metadata = await s3.getMetadata({ Key: key }); // event stream provides encoded keys
                     console.log("got metadata");
                 } catch (error) {
-                    console.log("getting metadata failed");
+                    console.log("failed to get metadata");
                     throw new Error(error);
                 }
                 const customMeta = metadata.Metadata;
