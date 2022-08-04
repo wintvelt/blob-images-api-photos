@@ -19,8 +19,8 @@ import { dynamoDb } from "blob-common/core/db";
 // to turn list of keys into object with stats
 const keyReducer = (outObj, key, i, inArr) => {
     const userId = key.split('/')[1];
-    const userItem = outObj[userId] || { s3: 0, db: -1 };
-    const newUserItem = { ...userItem, s3: userItem.s3 + 1 };
+    const userItem = outObj[userId] || { s3Count: 0, dbStats: -1 };
+    const newUserItem = { ...userItem, s3Count: userItem.s3Count + 1 };
     // skip empty userId = key for the folder itself
     return (userId) ?
         { ...outObj, [userId]: newUserItem }
@@ -28,12 +28,12 @@ const keyReducer = (outObj, key, i, inArr) => {
 };
 
 // to classify a user
-const getKey = (element) => (element.s3 === element.db) ?
+const getKey = (element) => (element.s3Count === element.dbStats) ?
     'okInBoth'
-    : (element.db === -1) ?
+    : (element.dbStats === -1) ?
         'onlyInS3'
-        : (element.s3 === -1) ?
-            (element.db === 0) ? 'noPhotos' : 'onlyInDb'
+        : (element.s3Count === -1) ?
+            (element.dbStats === 0) ? 'noPhotos' : 'onlyInDb'
             : 'mismatch';
 
 export const main = handler(async (event, context) => {
@@ -84,8 +84,8 @@ export const main = handler(async (event, context) => {
     for (let i = 0; i < dbStats.length; i++) {
         const dbItem = dbStats[i];
         const userId = dbItem.SK.slice(1);
-        let userItem = countObj[userId] || { s3: -1, db: 0 };
-        countObj[userId] = { ...userItem, db: dbItem.photoCount };
+        let userItem = countObj[userId] || { s3Count: -1, dbStats: 0 };
+        countObj[userId] = { ...userItem, dbStats: dbItem.photoCount };
     };
 
     // create summary
@@ -111,18 +111,19 @@ export const main = handler(async (event, context) => {
     mismatchKeys.forEach(key => {
         promises.push(dynamoDb.query({
             IndexName: process.env.photoIndex,
-            KeyConditionExpression: "#sk = :sk",
+            KeyConditionExpression: "#sk = :sk and begins_with(PK, :p)",
             ExpressionAttributeNames: {
-                '#sk': 'SK',
+                '#sk': 'SK'
             },
             ExpressionAttributeValues: {
                 ":sk": 'U' + key,
+                ':p': 'PO'
             }
         }));
     });
-    const realDbPhotos = await promises;
+    const realDbPhotos = await Promise.all(promises);
     mismatchKeys.forEach((key, i) => {
-        countObj[key] = { ...countObj[key], dbReal: realDbPhotos[i].Count };
+        countObj[key] = { ...countObj[key], dbCount: realDbPhotos[i].Count };
     });
 
     // print results
@@ -133,10 +134,32 @@ export const main = handler(async (event, context) => {
         })));
 
         console.log(summaryObj);
-    } else {
-        console.log(`user classified as "${getKey(countObj[userId])}"`);
     };
+
     console.table(countObj);
+
+    if (userId) {
+        const userClass = getKey(countObj[userId]);
+        console.log(`user classified as "${userClass}"`);
+
+        const userDbPhotos = realDbPhotos[0].Items;
+
+        if (userClass === 'mismatch' && userDbPhotos) {
+            let photoObj = {};
+            userDbPhotos.forEach(photo => {
+                const photoKey = photo.url.split('/')[2];
+                photoObj[photoKey] = { photoId: photo.PK, inDb: true };
+            });
+            keysFromS3.forEach(key => {
+                const photoKey = key.split('/')[2];
+                if (photoKey) {
+                    const photoItem = photoObj[photoKey] || {};
+                    photoObj[photoKey] = { ...photoItem, inS3: true };
+                }
+            });
+            console.table(photoObj);
+        }
+    }
 
     return `OK`;
 });
