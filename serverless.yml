@@ -65,6 +65,8 @@ provider:
 functions:
   fixPhotoDb:
     handler: handlersPhoto/fixPhotoDb.main
+  fixPhotoStats:
+    handler: handlersPhoto/fixPhotoStats.main
   createPhoto:
     handler: handlersPhoto/createPhoto.main
     events:
