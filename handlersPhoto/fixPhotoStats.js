@@ -124,6 +124,7 @@ export const main = handler(async (event, context) => {
     mismatchKeys.forEach((key, i) => {
         countObj[key] = { ...countObj[key], dbReal: realDbPhotos[i].Count };
     });
+
     // print results
     if (!userId) {
         console.table(Object.keys(summaryObj).map(key => ({
