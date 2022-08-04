@@ -3,20 +3,9 @@
 
 import { handler } from "blob-common/core/handler";
 import { s3 } from "blob-common/core/s3";
-// import AWS from "aws-sdk";
 import { dynamoDb } from "blob-common/core/db";
 
-// const lambdaFunc = new AWS.Lambda();
-// const lambdaParams = {
-//     FunctionName: process.env.createPhotoArn,
-//     InvocationType: 'RequestResponse',
-//     LogType: 'Tail'
-// };
-// const lambda = {
-//     invoke: (event) => lambdaFunc.invoke({ ...lambdaParams, Payload: JSON.stringify(event) }).promise()
-// };
-
-// to turn list of keys into object with stats
+// helper to turn list of keys into object with stats
 const keyReducer = (outObj, key, i, inArr) => {
     const userId = key.split('/')[1];
     const userItem = outObj[userId] || { s3Count: 0, dbStats: -1 };
