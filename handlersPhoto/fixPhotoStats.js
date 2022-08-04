@@ -3,7 +3,7 @@
 
 import { handler } from "blob-common/core/handler";
 import { s3 } from "blob-common/core/s3";
-import { dynamoDb } from "blob-common/core/db";
+import { dbUpdateMulti, dynamoDb } from "blob-common/core/db";
 
 // helper to turn list of keys into object with stats
 const keyReducer = (outObj, key, i, inArr) => {
@@ -95,7 +95,7 @@ export const main = handler(async (event, context) => {
     }
 
     // get real db photo count for mismatches
-    const mismatchKeys = summaryObj.mismatch;
+    const mismatchKeys = summaryObj.mismatch; // 1 key per user
     let promises = [];
     mismatchKeys.forEach(key => {
         promises.push(dynamoDb.query({
@@ -134,6 +134,7 @@ export const main = handler(async (event, context) => {
         const userDbPhotos = realDbPhotos[0].Items;
 
         if (userClass === 'mismatch' && userDbPhotos) {
+            // compare each photo key for this user
             let photoObj = {};
             userDbPhotos.forEach(photo => {
                 const photoKey = photo.url.split('/')[2];
@@ -146,7 +147,19 @@ export const main = handler(async (event, context) => {
                     photoObj[photoKey] = { ...photoItem, inS3: true };
                 }
             });
-            console.table(photoObj);
+            const allPhotosOK = Object.keys(photoObj).some(photoKey => (
+                !(photoObj[photoKey].inDb && photoObj[photoKey].inS3)
+            ));
+            if (allPhotosOK) {
+                const userPhotoCount = Object.keys(photoObj.length);
+                console.log(`All ${userPhotoCount} user photos are in db and in S3, repairing user stats`);
+                await dbUpdateMulti('UPstats', 'U' + userId, {
+                    photoCount: userPhotoCount,
+                    prevPhotoCount: userPhotoCount
+                });
+            } else {
+                console.table(photoObj);
+            }
         }
     }
 
