@@ -10,9 +10,13 @@ import { getUser, getUserByCognitoId } from "../libs/dynamodb-lib-user";
 import { getMemberRole } from "../libs/dynamodb-lib-single";
 import { getExifData } from "../libs/lib-geodata";
 
+const s3KeyFromUrl = (key) => (
+    key.split('/').slice(0, 2).join('/') +
+    '/' + decodeURIComponent(key.split('/')[2])
+);
+
 export const main = handler(async (event, context) => {
     const eventList = event.Records || [];
-    // const keyList = eventList.map(item => decodeURIComponent(item.s3.object.key));
     const keyList = eventList.map(item => item.s3.object.key);
     const keyListLength = keyList.length;
 
@@ -60,8 +64,8 @@ export const main = handler(async (event, context) => {
                 let file;
                 try {
                     [metadata, file] = await Promise.all([
-                        s3.getMetadata({ Key: key }),
-                        s3.get({ Key: key })
+                        s3.getMetadata({ Key: s3KeyFromUrl(key) }), // event stream provides encoded keys
+                        s3.get({ Key: s3KeyFromUrl(key) })
                     ]);
                     console.log("got metadata");
                 } catch (error) {
