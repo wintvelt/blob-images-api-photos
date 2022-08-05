@@ -131,7 +131,7 @@ export const main = handler(async (event, context) => {
         const userClass = getKey(countObj[userId]);
         console.log(`user classified as "${userClass}"`);
 
-        const userDbPhotos = realDbPhotos[0].Items;
+        const userDbPhotos = realDbPhotos[0]?.Items;
 
         if (userClass === 'mismatch' && userDbPhotos) {
             // compare each photo key for this user
@@ -147,11 +147,11 @@ export const main = handler(async (event, context) => {
                     photoObj[photoKey] = { ...photoItem, inS3: true };
                 }
             });
-            const allPhotosOK = Object.keys(photoObj).some(photoKey => (
+            const allPhotosOK = !Object.keys(photoObj).some(photoKey => (
                 !(photoObj[photoKey].inDb && photoObj[photoKey].inS3)
             ));
             if (allPhotosOK) {
-                const userPhotoCount = Object.keys(photoObj.length);
+                const userPhotoCount = Object.keys(photoObj).length;
                 console.log(`All ${userPhotoCount} user photos are in db and in S3, repairing user stats`);
                 await dbUpdateMulti('UPstats', 'U' + userId, {
                     photoCount: userPhotoCount,
