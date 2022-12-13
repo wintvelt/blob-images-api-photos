@@ -26,10 +26,13 @@ export const main = handler(async (event, context) => {
     const data = JSON.parse(event.body);
     const userRatingUpdate = parseInt(data.ratingUpdate);
 
-    // return empty if update is beyond -1, +1
-    if (oldUserRating === userRatingUpdate) return '';
-
     const newUserRating = oldUserRating + userRatingUpdate;
+
+    // do nothing if update is beyond -1, +1
+    if (newUserRating > 1 || newUserRating < 0) return {
+        rating: oldUserRating,
+        prevRating: oldUserRating
+    };
 
     if (ratingItem) {
         // update rating of user
@@ -47,5 +50,8 @@ export const main = handler(async (event, context) => {
         });
     }
 
-    return { status: 'ok' };
+    return {
+        rating: newUserRating,
+        prevRating: oldUserRating
+    };
 });
