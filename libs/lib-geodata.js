@@ -20,9 +20,9 @@ const fetchCountry = (countryCode, lang = 'nl') => {
   return regionNames.of(countryCode);
 };
 
-const fetchGeoCode = async (lat, lon) => {
+export const fetchGeoCode = async (lat, lon) => {
   // TODO: fetch gives unexpected behavior on timeout (!!)
-  const url = 'http://open.mapquestapi.com/geocoding/v1/reverse?key=' +
+  const url = 'http://www.mapquestapi.com/geocoding/v1/reverse?key=' +
     process.env.MAPQUEST_KEY +
     `&location=${lat},${lon}` +
     '&includeRoadMetadata=true&includeNearestIntersection=true';
@@ -40,7 +40,7 @@ const fetchGeoCode = async (lat, lon) => {
   } catch (error) {
     if (error instanceof AbortError) {
       console.log("get location timed out");
-      return [];
+      return {};
     } else {
       console.log("get location failed");
     }
@@ -48,17 +48,17 @@ const fetchGeoCode = async (lat, lon) => {
     clearTimeout(timeout);
   }
 
-  const found = result.results && result.results[0];
+  const found = result?.results && result.results[0];
   const location = found && found.locations[0];
-  const street = (location.street) ? location.street + ' - ' : '';
+  if (!location) return '';
+
+  const street = (location?.street) ? location.street + ' - ' : '';
   const city = getValFromGeo(location, 'City');
   const countryCode = getValFromGeo(location, 'Country');
   console.log("getting country");
   const country = fetchCountry(countryCode);
   console.log("got country");
-  return location ?
-    street + (city ? city + ' - ' : '') + country
-    : '';
+  return street + (city ? city + ' - ' : '') + country;
 };
 
 const getExif = (fileResult) => {
@@ -68,7 +68,7 @@ const getExif = (fileResult) => {
     const result = parser.parse();
     return result;
   } catch (error) {
-    console.log("got an error");
+    console.log("got an error parsing exif from file");
     return { error: true };
   }
 };

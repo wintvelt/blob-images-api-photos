@@ -8,7 +8,7 @@ import { s3 } from "blob-common/core/s3";
 
 import { getUser, getUserByCognitoId } from "../libs/dynamodb-lib-user";
 import { getMemberRole } from "../libs/dynamodb-lib-single";
-import { getExifData } from "../libs/lib-geodata";
+import { fetchGeoCode, getExifData } from "../libs/lib-geodata";
 
 const s3KeyFromUrl = (key) => (
     key.split('/').slice(0, 2).join('/') +
@@ -86,11 +86,21 @@ export const main = handler(async (event, context) => {
                     let exifData;
                     console.log("getting exif data");
                     try {
-                        exifData = await getExifData(file);
-                        console.log("got exif data");
+                        if (customMeta?.datetimeoriginal) {
+                            exifData = { exifDate: customMeta.datetimeoriginal.slice(0, 10).replace(/:/g, '-') };
+                            if (customMeta.gpslatitude) {
+                                exifData.exifLat = parseFloat(customMeta.gpslatitude);
+                                if (customMeta.gpslongitude) exifData.exifLon = parseFloat(customMeta.gpslongitude);
+                                const exifAddress = await fetchGeoCode(exifData.exifLat, exifData.exifLon);
+                                if (exifAddress) exifData.exifAddress = exifAddress;
+                            }
+                            console.log("got exif data from file");
+                        } else {
+                            exifData = await getExifData(file);
+                            console.log("got exif data from image");
+                        }
                     } catch (error) {
                         console.log("getting exif data failed");
-                        throw new Error(error);
                     }
                     const photoItem = dbItem({
                         PK: 'PO' + photoId,
@@ -163,6 +173,12 @@ export const main = handler(async (event, context) => {
                                         photoId,
                                         photo: cleanPhoto
                                     }));
+                                    const AlbumPhotoItem = {
+                                        PK: `GP${groupid}#${albumid}`,
+                                        SK: photoId,
+                                        photo: cleanPhoto,
+                                    };
+                                    createPromises.push(dbCreateItem(AlbumPhotoItem));
                                 }
                             }
                             break;
