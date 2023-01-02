@@ -1,7 +1,6 @@
 # NOTE: update this with your service name
 service: blob-images-api-photos
 useDotenv: true
-variablesResolutionMode: 20210326
 
 # Create an optimized package for our functions 
 package:
@@ -31,36 +30,38 @@ provider:
     cognitoIndex: cog-idx
     dateIndex: date-idx
 
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-        - dynamodb:DescribeStream
-        - dynamodb:ListStreams
-      Resource: "arn:aws:dynamodb:eu-central-1:*:*"
-    - Effect: Allow
-      Action:
-        - ses:SendEmail
-        - ses:SendRawEmail
-        - ses:SendTemplatedEmail
-        - ses:SendBulkTemplatedEmail
-      Resource: "arn:aws:ses:eu-central-1:*:*"
-    - Effect: Allow
-      Action:
-        - s3:GetObject
-        - s3:DeleteObject
-        - s3:ListBucket
-      Resource: "arn:aws:s3:::*"
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-      Resource: "arn:aws:lambda:*"
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:DescribeStream
+            - dynamodb:ListStreams
+          Resource: "arn:aws:dynamodb:eu-central-1:*:*"
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+            - ses:SendTemplatedEmail
+            - ses:SendBulkTemplatedEmail
+          Resource: "arn:aws:ses:eu-central-1:*:*"
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:DeleteObject
+            - s3:ListBucket
+          Resource: "arn:aws:s3:::*"
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: "arn:aws:lambda:*"
 
 functions:
   fixPhotoDb:
@@ -105,6 +106,14 @@ functions:
     events:
       - http:
           path: /{id}/publications
+          method: get
+          cors: true
+          authorizer: aws_iam
+  listAllPublications:
+    handler: handlersPhoto/listAllPhotoPublications.main
+    events:
+      - http:
+          path: /publications
           method: get
           cors: true
           authorizer: aws_iam
