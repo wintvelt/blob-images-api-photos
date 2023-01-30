@@ -1,6 +1,7 @@
 import { makeDateStr } from 'blob-common/core/date';
 import { create as exifCreate } from 'exif-parser';
 import fetch, { AbortError } from 'node-fetch';
+import { transliterate } from 'transliteration';
 
 const getValFromGeo = (obj, key) => (
   (obj.adminArea1Type === key) ? obj.adminArea1
@@ -18,6 +19,11 @@ const fetchCountry = (countryCode, lang = 'nl') => {
   );
 
   return regionNames.of(countryCode);
+};
+
+const tr = (string) => {
+  const trString = transliterate(string);
+  return trString.charAt(0).toUpperCase() + trString.slice(1);
 };
 
 export const fetchGeoCode = async (lat, lon) => {
@@ -58,7 +64,9 @@ export const fetchGeoCode = async (lat, lon) => {
   console.log("getting country");
   const country = fetchCountry(countryCode);
   console.log("got country");
-  return street + (city ? city + ' - ' : '') + country;
+  const address = tr(street) + (city ? tr(city) + ' - ' : '') + country;
+
+  return address;
 };
 
 const getExif = (fileResult) => {

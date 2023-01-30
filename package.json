@@ -28,6 +28,7 @@
     "blob-common": "^1.4.5",
     "exif-parser": "^0.1.12",
     "node-fetch": "^3.3.0",
-    "serverless": "^3.25.1"
+    "serverless": "^3.25.1",
+    "transliteration": "^2.3.5"
   }
 }
