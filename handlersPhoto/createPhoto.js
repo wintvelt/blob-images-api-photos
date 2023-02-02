@@ -124,9 +124,9 @@ export const main = handler(async (event, context) => {
                                     console.log('get memberRole failed');
                                     throw new Error(error);
                                 }
-
-                                const isGroupAdmin = (memberRole && memberRole === 'admin');
-                                if (isGroupAdmin) {
+                                // guests also allowed to add photos to albums
+                                const isMember = !!memberRole;
+                                if (isMember) {
                                     const AlbumPhotoItem = {
                                         PK: `GP${groupid}#${albumid}`,
                                         SK: photoId,
