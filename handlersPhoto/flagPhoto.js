@@ -11,6 +11,7 @@ export const main = handler(async (event, context) => {
     // get photo - also return photo if owned by someone else, but user has access
     let photo = await getPhotoById(photoId, userId);
     if (!photo) throw new Error('photo not found');
+    if (photo.SK === userId) throw new Error('cannot flag your own photos');
 
     await dbUpdateMulti(photo.PK, photo.SK, {
         flaggedDate: now(),
