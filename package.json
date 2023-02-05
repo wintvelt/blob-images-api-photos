@@ -25,7 +25,7 @@
     "serverless-offline": "^12.0.2"
   },
   "dependencies": {
-    "blob-common": "^1.4.5",
+    "blob-common": "^1.4.7",
     "exif-parser": "^0.1.12",
     "node-fetch": "^3.3.0",
     "serverless": "^3.25.1",

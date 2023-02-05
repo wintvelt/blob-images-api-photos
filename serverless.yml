@@ -85,6 +85,14 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+  flagPhoto:
+    handler: handlersPhoto/flagPhoto.main
+    events:
+      - http:
+          path: /{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
   listPhotos:
     handler: handlersPhoto/listPhotos.main
     events:
