@@ -101,6 +101,14 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+  listFlaggedPhotos:
+    handler: handlersPhoto/listFlagged.main
+    events:
+      - http:
+          path: /flagged
+          method: get
+          cors: true
+          authorizer: aws_iam
   deletePhoto:
     handler: handlersPhoto/deletePhoto.main
     events:
