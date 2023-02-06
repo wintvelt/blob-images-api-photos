@@ -89,8 +89,16 @@ functions:
     handler: handlersPhoto/flagPhoto.main
     events:
       - http:
-          path: /{id}
-          method: put
+          path: /{id}/flag
+          method: post
+          cors: true
+          authorizer: aws_iam
+  flagPhotoAppeal:
+    handler: handlersPhoto/flagPhotoAppeal.main
+    events:
+      - http:
+          path: /{id}/appeal
+          method: post
           cors: true
           authorizer: aws_iam
   listPhotos:

@@ -1,4 +1,4 @@
-// flag photo as inappropriate
+// appeal to flagging of photo by others
 import { handler, getUserFromEvent } from "blob-common/core/handler";
 import { cleanRecord } from "blob-common/core/dbClean";
 import { getPhotoById } from "../libs/dynamodb-lib-single";
@@ -11,13 +11,13 @@ export const main = handler(async (event, context) => {
     // get photo - also return photo if owned by someone else, but user has access
     let photo = await getPhotoById(photoId, userId);
     if (!photo) throw new Error('photo not found');
-    if (photo.SK === userId) throw new Error('cannot flag your own photos');
+    if (photo.SK !== userId) throw new Error('photo is not yours');
+    if (!photo.flaggedDate) throw new Error('photo not flagged');
 
-    const flagParams = {
-        flaggedDate: now(),
-        flaggedBy: userId
+    const appealParams = {
+        flaggedAppealDate: now()
     };
-    await dbUpdateMulti(photo.PK, photo.SK, flagParams);
+    await dbUpdateMulti(photo.PK, photo.SK, appealParams);
 
-    return cleanRecord({...photo, ...flagParams});
+    return cleanRecord({ ...photo, ...appealParams });
 });
