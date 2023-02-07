@@ -4,7 +4,7 @@ import { handler, getUserFromEvent } from "blob-common/core/handler";
 
 export const main = handler(async (event, context) => {
     const userId = getUserFromEvent(event);
-    if (!userId === process.env.webmasterId) throw new Error('only allowed for webmaster');
+    if (userId !== process.env.webmasterId) throw new Error('only allowed for webmaster');
 
     const params = {
         IndexName: process.env.flaggedIndex,

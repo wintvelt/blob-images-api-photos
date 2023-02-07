@@ -4,7 +4,7 @@ import { listPhotosByDate } from "../libs/dynamodb-query-lib";
 
 export const main = handler(async (event, context) => {
     const userId = getUserFromEvent(event);
-    const photos = await listPhotosByDate(userId)
+    const photos = await listPhotosByDate(userId);
+    return photos
         .filter(photo => !!photo.flaggedDate);
-    return photos;
 });
