@@ -24,11 +24,13 @@ provider:
     photoTable: ${file(./serverlessDomainConfig.js):photoTable.${self:provider.stage}}
     photoBucket: ${file(./serverlessDomainConfig.js):photoBucket.${self:provider.stage}}
     createPhotoArn: ${file(./serverlessDomainConfig.js):createPhotoArn.${self:provider.stage}}
+    webmasterId: ${file(./serverlessDomainConfig.js):webmasterid.${self:provider.stage}}
     coverIndex: cover-idx
     photoIndex: SK-PK-idx
     emailIndex: email-idx
     cognitoIndex: cog-idx
     dateIndex: date-idx
+    flaggedIndex: flagged-idx
 
   iam:
     role:
@@ -114,6 +116,14 @@ functions:
     events:
       - http:
           path: /flagged
+          method: get
+          cors: true
+          authorizer: aws_iam
+  listAllFlaggedPhotos:
+    handler: handlersPhoto/listAllFlagged.main
+    events:
+      - http:
+          path: /flagged/all
           method: get
           cors: true
           authorizer: aws_iam

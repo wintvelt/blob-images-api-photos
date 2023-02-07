@@ -15,7 +15,8 @@ export const main = handler(async (event, context) => {
 
     const flagParams = {
         flaggedDate: now(),
-        flaggedBy: userId
+        flaggedBy: userId,
+        flagged: 'flagged' // for flag-index
     };
     await dbUpdateMulti(photo.PK, photo.SK, flagParams);
 

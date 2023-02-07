@@ -9,10 +9,11 @@ import { dynamoDb } from "blob-common/core/db";
 
 export const main = handler(async (event, context) => {
     const userId = getUserFromEvent(event);
-    const photos = await listPhotosByDate(userId)
-        .filter(photo => !photo.flaggedDate);
-    const pubs = await Promise.allSettled(photos.map(photo => listPhotoPublications(photo.PK.slice(2))));
-
+    const rawPhotos = await listPhotosByDate(userId);
+    const photos = rawPhotos.filter(photo => !photo.flaggedDate);
+    const pubs = await Promise.allSettled(photos
+        .map(photo => listPhotoPublications(photo.PK.slice(2)))
+    );
     let pubsDict = {}; // keep all photos in dict, per albumkey
     for (let i = 0; i < photos.length; i++) {
         const photo = cleanRecord(photos[i]);
