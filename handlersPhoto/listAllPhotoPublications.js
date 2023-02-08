@@ -10,7 +10,8 @@ import { dynamoDb } from "blob-common/core/db";
 export const main = handler(async (event, context) => {
     const userId = getUserFromEvent(event);
     const rawPhotos = await listPhotosByDate(userId);
-    const photos = rawPhotos.filter(photo => !photo.flaggedDate);
+    // const photos = rawPhotos.filter(photo => !photo.flaggedDate);
+    const photos = rawPhotos;
     const pubs = await Promise.allSettled(photos
         .map(photo => listPhotoPublications(photo.PK.slice(2)))
     );

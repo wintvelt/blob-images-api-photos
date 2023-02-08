@@ -13,6 +13,9 @@ export const main = handler(async (event, context) => {
     if (!photo) throw new Error('photo not found');
     if (photo.SK === userId) throw new Error('cannot flag your own photos');
 
+    // ignore update if photo already flagged
+    if (photo.flaggedDate) return cleanRecord(photo);
+
     const flagParams = {
         flaggedDate: now(),
         flaggedBy: userId,
@@ -20,5 +23,5 @@ export const main = handler(async (event, context) => {
     };
     await dbUpdateMulti(photo.PK, photo.SK, flagParams);
 
-    return cleanRecord({...photo, ...flagParams});
+    return cleanRecord({ ...photo, ...flagParams });
 });

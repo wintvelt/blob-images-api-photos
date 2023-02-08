@@ -4,7 +4,9 @@ import { handler, getUserFromEvent } from "blob-common/core/handler";
 
 export const main = handler(async (event, context) => {
     const userId = getUserFromEvent(event);
-    if (userId !== process.env.webmasterId) throw new Error('only allowed for webmaster');
+    const isWebmaster = (userId === process.env.webmasterId);
+
+    if (!isWebmaster) return { isWebmaster: false };
 
     const params = {
         IndexName: process.env.flaggedIndex,
@@ -18,6 +20,6 @@ export const main = handler(async (event, context) => {
     };
 
     const result = await dynamoDb.query(params);
-    const items = result.Items;
-    return items || [];
+    const items = result.Items || [];
+    return { isWebmaster: true, photos: items };
 });

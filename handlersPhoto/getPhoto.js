@@ -9,7 +9,7 @@ export const main = handler(async (event, context) => {
     // get photo - also return photo if owned by someone else, but user has access
     let photo = await getPhotoById(photoId, userId);
     if (!photo) throw new Error('photo not found');
-    if (photo.flaggedDate) throw new Error('photo flagged as inappropriate');
+    // if (photo.flaggedDate) throw new Error('photo flagged as inappropriate');
 
     // add signed s3 url
     const signedUrl = s3.getSignedUrlGet({

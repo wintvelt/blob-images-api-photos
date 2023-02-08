@@ -14,6 +14,9 @@ export const main = handler(async (event, context) => {
     if (photo.SK !== userId) throw new Error('photo is not yours');
     if (!photo.flaggedDate) throw new Error('photo not flagged');
 
+    // ignore update if already appealed
+    if (photo.flaggedAppealDate) return cleanRecord(photo);
+
     const appealParams = {
         flaggedAppealDate: now()
     };
