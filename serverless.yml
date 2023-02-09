@@ -103,6 +103,14 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
+  flagPhotoDecide:
+    handler: handlersPhoto/flagPhotoDecide.main
+    events:
+      - http:
+          path: /{id}/decide
+          method: post
+          cors: true
+          authorizer: aws_iam
   listPhotos:
     handler: handlersPhoto/listPhotos.main
     events:

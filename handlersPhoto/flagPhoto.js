@@ -3,7 +3,9 @@ import { handler, getUserFromEvent } from "blob-common/core/handler";
 import { cleanRecord } from "blob-common/core/dbClean";
 import { getPhotoById } from "../libs/dynamodb-lib-single";
 import { dbUpdateMulti } from "blob-common/core/db";
-import { now } from "blob-common/core/date";
+import { diffDate, now } from "blob-common/core/date";
+
+const DELETE_DAYS = 14; //no of days after flagging when photo will be deleted - unless appealed
 
 export const main = handler(async (event, context) => {
     const userId = getUserFromEvent(event);
@@ -18,6 +20,7 @@ export const main = handler(async (event, context) => {
 
     const flagParams = {
         flaggedDate: now(),
+        flaggedDeleteDate: diffDate(now(), DELETE_DAYS),
         flaggedBy: userId,
         flagged: 'flagged' // for flag-index
     };

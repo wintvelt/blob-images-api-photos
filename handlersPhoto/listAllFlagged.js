@@ -5,7 +5,6 @@ import { handler, getUserFromEvent } from "blob-common/core/handler";
 export const main = handler(async (event, context) => {
     const userId = getUserFromEvent(event);
     const isWebmaster = (userId === process.env.webmasterId);
-
     if (!isWebmaster) return { isWebmaster: false };
 
     const params = {

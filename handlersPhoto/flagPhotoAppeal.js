@@ -18,7 +18,8 @@ export const main = handler(async (event, context) => {
     if (photo.flaggedAppealDate) return cleanRecord(photo);
 
     const appealParams = {
-        flaggedAppealDate: now()
+        flaggedAppealDate: now(),
+        flaggedDeleteDate: '' // clear planned deletion until verdict
     };
     await dbUpdateMulti(photo.PK, photo.SK, appealParams);
 
