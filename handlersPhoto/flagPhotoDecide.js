@@ -89,7 +89,7 @@ export const main = handler(async (event, context) => {
             flaggedDeleteDate: ''
         });
     } else {
-        // need to get UPstats first because deletedFlagged may not exists
+        // need to get UPstats first because deletedFlagged may not exist
         const statsResult = await dynamoDb.get({
             Key: {
                 PK: 'UPstats',
