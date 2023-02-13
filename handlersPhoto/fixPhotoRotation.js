@@ -1,6 +1,8 @@
 // Edit a photo and save it on S3
 // accessible only to admins of a group
 // NB: file size may significantly increase - e.g 5.8mb to 8.3mb
+// sharp lib is too much hassle with AWS+serverless: requires either lambda layer in docker (yugh) or script in serverless-bundle
+// db-stream does not fix user avatar, but this is edge case
 
 import { getUserFromEvent, handler } from "blob-common/core/handler";
 import { dbUpdateMulti } from "blob-common/core/db";
