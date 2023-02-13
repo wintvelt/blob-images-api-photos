@@ -59,6 +59,7 @@ provider:
             - s3:GetObject
             - s3:DeleteObject
             - s3:ListBucket
+            - s3:PutObject
           Resource: "arn:aws:s3:::*"
         - Effect: Allow
           Action:
@@ -85,6 +86,15 @@ functions:
       - http:
           path: /{id}
           method: get
+          cors: true
+          authorizer: aws_iam
+  fixPhotoRotation:
+    handler: handlersPhoto/fixPhotoRotation.main
+    timeout: 15
+    events:
+      - http:
+          path: /{id}/edit
+          method: post
           cors: true
           authorizer: aws_iam
   flagPhoto:
