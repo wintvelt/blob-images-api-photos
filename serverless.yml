@@ -88,12 +88,20 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-  fixPhotoRotation:
-    handler: handlersPhoto/fixPhotoRotation.main
-    timeout: 15
+  updatePhoto:
+    handler: handlersPhoto/updatePhoto.main
     events:
       - http:
-          path: /{id}/edit
+          path: /{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+  fixPhotoRotation:
+    handler: handlersPhoto/fixPhotoRotation.main
+    timeout: 30
+    events:
+      - http:
+          path: /{id}/rotate
           method: post
           cors: true
           authorizer: aws_iam
