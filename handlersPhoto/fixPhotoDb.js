@@ -14,7 +14,7 @@ const lambdaParams = {
 const lambda = {
     invoke: (event) => {
         const lambdaCommand = new InvokeCommand({ ...lambdaParams, Payload: JSON.stringify(event) });
-        return client.send(lambdaCommand);
+        return lambdaClient.send(lambdaCommand);
     }
     // invoke: (event) => lambdaFunc.invoke({ ...lambdaParams, Payload: JSON.stringify(event) }).promise()
 };
