@@ -25,11 +25,11 @@
     "serverless-offline": "^12.0.4"
   },
   "dependencies": {
-    "blob-common": "^1.4.11",
+    "blob-common": "^2.0.2",
     "exif-parser": "^0.1.12",
     "jimp": "^0.22.10",
     "node-fetch": "^3.3.2",
-    "serverless": "^3.34.0",
+    "serverless": "^3.38.0",
     "transliteration": "^2.3.5"
   }
 }

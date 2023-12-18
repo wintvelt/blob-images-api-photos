@@ -10,6 +10,7 @@ export const getUser = async (userId) => {
     const result = await dynamoDb.get(params);
     const oldUser = result.Item;
     if (!oldUser) {
+        console.log(result);
         throw new Error("User not found.");
     }
     return oldUser;
