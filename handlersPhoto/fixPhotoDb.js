@@ -1,16 +1,22 @@
 import { handler } from "blob-common/core/handler";
 import { s3 } from "blob-common/core/s3";
-import AWS from "aws-sdk";
+import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+// import AWS from "aws-sdk"; // OLD - AWS SDK v2
 import { dynamoDb } from "blob-common/core/db";
 
-const lambdaFunc = new AWS.Lambda();
+const lambdaClient = new LambdaClient();
+// const lambdaFunc = new AWS.Lambda();
 const lambdaParams = {
     FunctionName: process.env.createPhotoArn,
     InvocationType: 'RequestResponse',
     LogType: 'Tail'
 };
 const lambda = {
-    invoke: (event) => lambdaFunc.invoke({ ...lambdaParams, Payload: JSON.stringify(event) }).promise()
+    invoke: (event) => {
+        const lambdaCommand = new InvokeCommand({ ...lambdaParams, Payload: JSON.stringify(event) });
+        return client.send(lambdaCommand);
+    }
+    // invoke: (event) => lambdaFunc.invoke({ ...lambdaParams, Payload: JSON.stringify(event) }).promise()
 };
 
 export const main = handler(async (event, context) => {
